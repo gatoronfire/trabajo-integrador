@@ -59,14 +59,18 @@
     <!-- PACIENTES -->
     <section id="viewPac" class="grid" hidden>
       <div class="card stack">
-        <input type="search" id="pacSearch" placeholder="Buscar por apellido, nombre o DNI" autocomplete="off">
+        <div class="listbar">
+          <input type="search" id="pacSearch" placeholder="Buscar por apellido, nombre o DNI" autocomplete="off">
+          <button class="btn primary" id="pacNuevo">Nuevo paciente</button>
+        </div>
+        <p class="count" id="pacCount"></p>
         <div class="tablewrap">
           <table>
             <thead><tr><th>Apellido y nombre</th><th>DNI</th><th>Teléfono</th><th>Obra social</th></tr></thead>
             <tbody id="pacBody"></tbody>
           </table>
         </div>
-        <p class="empty" id="pacEmpty" hidden>Todavía no hay pacientes cargados. Usá el formulario de alta para cargar el primero.</p>
+        <p class="empty" id="pacEmpty" hidden>Todavía no hay pacientes cargados. Tocá "Nuevo paciente" para cargar el primero.</p>
       </div>
       <div class="card panel" id="pacPanel"></div>
     </section>

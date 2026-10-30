@@ -27,6 +27,7 @@ export function iniciarAgenda() {
   alCambiarPacientes(() => {
     if (seleccion !== null && panelLibre()) renderPanel();
   });
+  escucharCambios();
   setInterval(renderGrilla, 60000); // actualiza qué horarios ya pasaron
   cargarDia();
 }
@@ -64,6 +65,14 @@ async function cargarDia() {
   } catch (e) {
     mostrarBanner("No se pudieron cargar los turnos: " + textoDeError(e));
   }
+}
+
+// Escucha en tiempo real los turnos que crean o eliminan otros puestos.
+function escucharCambios() {
+  supabase
+    .channel("turnos-cambios")
+    .on("postgres_changes", { event: "*", schema: "public", table: "turnos" }, () => cargarDia())
+    .subscribe();
 }
 
 /* ---------- grilla ---------- */

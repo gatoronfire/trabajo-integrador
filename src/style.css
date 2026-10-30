@@ -15,6 +15,8 @@
   --accent:#5cc0c4; --accent-soft:#17383b; --busy:#8db8e6; --busy-soft:#1a2c40;
   --warn:#f08f7e; --warn-soft:#3a1f1b; --ok:#7fc495; color-scheme:dark}
 *{box-sizing:border-box}
+/* El atributo hidden siempre oculta, aunque la clase defina su propio display */
+[hidden]{display:none!important}
 body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.5;
   padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:20px 40px}
 .wrap{max-width:1100px;margin:0 auto;display:flex;flex-direction:column;gap:18px}
@@ -92,3 +94,9 @@ input[type=email],input[type=password]{width:100%;padding:9px 11px;border:1px so
 @media (max-width:600px){.head-right{align-items:flex-start}}
 tr.click:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
 .mono{font-family:var(--f-mono);font-variant-numeric:tabular-nums}
+
+/* Pestaña Pacientes */
+.listbar{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.listbar input{flex:1 1 220px}
+.count{font-size:.85rem;color:var(--muted);margin:0}
+tr.sel td{background:var(--accent-soft)}

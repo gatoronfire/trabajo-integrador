@@ -30,6 +30,7 @@ En Supabase, abrir **SQL Editor** y ejecutar en orden los archivos de `supabase/
 | `01_pacientes.sql` | Tabla de pacientes |
 | `02_turnos.sql` | Tabla de turnos, sin sobreturnos y sin modificaciones |
 | `03_seguridad.sql` | Solo usuarios con sesión iniciada acceden a los datos |
+| `04_realtime.sql` | Actualización en tiempo real de la agenda |
 
 ## Usuario de la secretaría
 

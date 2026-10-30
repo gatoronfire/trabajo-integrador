@@ -41,9 +41,8 @@ export function formularioPacienteHTML(px, textoBoton, conVolver = false) {
   return `<form id="${px}Form" class="stack" novalidate>
     <div class="row"><label>Nombre<input type="text" id="${px}Nom" autocomplete="off"></label><label>Apellido<input type="text" id="${px}Ape" autocomplete="off"></label></div>
     <div class="row"><label>DNI<input type="text" id="${px}Dni" inputmode="numeric" autocomplete="off"></label><label>Teléfono<input type="tel" id="${px}Tel" inputmode="numeric" autocomplete="off"></label></div>
-    <label class="check"><input type="checkbox" id="${px}TOS"> Tiene obra social</label>
-    <label id="${px}TipoW" hidden>Tipo de obra social<input type="text" id="${px}Tipo" placeholder="Ej.: OSDE, IOMA, PAMI" autocomplete="off"></label>
-    <p class="note">DNI y teléfono se cargan solo con números.</p>
+    <label>Obra social (opcional)<input type="text" id="${px}Tipo" placeholder="Ej.: OSDE, IOMA, PAMI" autocomplete="off"></label>
+    <p class="note">DNI y teléfono se cargan solo con números. Si el paciente no tiene obra social, dejá ese campo vacío.</p>
     <div class="row"><button class="btn primary" type="submit" id="${px}Ok">${textoBoton}</button>${
       conVolver ? `<button class="btn" type="button" id="${px}Back">Volver a buscar</button>` : ""
     }</div>
@@ -52,19 +51,16 @@ export function formularioPacienteHTML(px, textoBoton, conVolver = false) {
 
 /** Conecta el formulario: valida, crea el paciente en Supabase y llama a onGuardado(paciente). */
 export function conectarFormularioPaciente(px, { onGuardado, onVolver }) {
-  $(px + "TOS").onchange = (e) => ($(px + "TipoW").hidden = !e.target.checked);
   if (onVolver) $(px + "Back").onclick = onVolver;
   $(px + "Form").onsubmit = async (e) => {
     e.preventDefault();
-    const tieneOS = $(px + "TOS").checked;
-    const tipo = $(px + "Tipo").value.trim();
-    if (tieneOS && !tipo) return errorEnFormulario(px, "Indicá el tipo de obra social o desmarcá la casilla.");
+    const obraSocial = $(px + "Tipo").value.trim();
     const datos = {
       nombre: $(px + "Nom").value.trim(),
       apellido: $(px + "Ape").value.trim(),
       dni: aEntero($(px + "Dni").value),
       telefono: aEntero($(px + "Tel").value),
-      tipoObraSocial: tieneOS ? tipo : null,
+      tipoObraSocial: obraSocial || null, // vacío = sin obra social
     };
     $(px + "Ok").disabled = true;
     try {
