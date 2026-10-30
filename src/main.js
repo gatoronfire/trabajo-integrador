@@ -3,6 +3,7 @@ import { $, mostrarBanner, textoDeError } from "./ui.js";
 import { cargarPacientes } from "./store.js";
 import { iniciarPacientes, mostrarPacientes } from "./views/pacientesView.js";
 import { iniciarAgenda, mostrarAgenda } from "./views/agendaView.js";
+import { requerirSesion } from "./views/loginView.js";
 
 /* ---------- pestañas ---------- */
 function mostrarPestana(agenda) {
@@ -27,4 +28,4 @@ async function iniciarApp() {
   }
 }
 
-iniciarApp();
+requerirSesion(iniciarApp);

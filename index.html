@@ -9,15 +9,29 @@
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap">
 </head>
 <body>
+  <!-- LOGIN -->
+  <section id="viewLogin" class="card login" hidden>
+    <form id="loginForm" class="stack" novalidate>
+      <div>
+        <h1>Agenda del Consultorio</h1>
+        <p class="sub">Ingresá con el usuario de la secretaría.</p>
+      </div>
+      <label>Email<input type="email" id="loginEmail" autocomplete="username"></label>
+      <label>Contraseña<input type="password" id="loginPass" autocomplete="current-password"></label>
+      <div id="loginMsg" class="msg err" hidden></div>
+      <button class="btn primary" type="submit" id="loginBtn">Ingresar</button>
+    </form>
+  </section>
 
   <!-- APP -->
-  <div class="wrap" id="viewApp">
+  <div class="wrap" id="viewApp" hidden>
     <header>
       <div>
         <h1>Agenda del Consultorio</h1>
         <p class="sub">Turnos de 40 minutos · 8:00 a 20:00 · sin sobreturnos</p>
       </div>
       <div class="head-right">
+        <div class="session"><span id="userEmail"></span><button class="btn" id="logoutBtn">Salir</button></div>
         <div class="tabs" role="tablist">
           <button id="tabAgenda" role="tab" aria-selected="true">Turnos</button>
           <button id="tabPac" role="tab" aria-selected="false">Pacientes</button>

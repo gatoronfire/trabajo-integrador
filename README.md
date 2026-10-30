@@ -29,6 +29,12 @@ En Supabase, abrir **SQL Editor** y ejecutar en orden los archivos de `supabase/
 |---|---|
 | `01_pacientes.sql` | Tabla de pacientes |
 | `02_turnos.sql` | Tabla de turnos, sin sobreturnos y sin modificaciones |
+| `03_seguridad.sql` | Solo usuarios con sesión iniciada acceden a los datos |
+
+## Usuario de la secretaría
+
+En Supabase: **Authentication → Users → Add user**, con email y contraseña.
+Con ese usuario se ingresa a la app.
 
 ## Estructura
 
@@ -45,5 +51,6 @@ src/
   views/
     pacientesView.js   pestaña Pacientes
     agendaView.js      pestaña Turnos
+    loginView.js       inicio de sesión
 supabase/              scripts SQL de la base de datos
 ```
