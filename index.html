@@ -4,9 +4,59 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Agenda del Consultorio</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap">
 </head>
 <body>
-  <div id="app" class="wrap"></div>
+
+  <!-- APP -->
+  <div class="wrap" id="viewApp">
+    <header>
+      <div>
+        <h1>Agenda del Consultorio</h1>
+        <p class="sub">Turnos de 40 minutos · 8:00 a 20:00 · sin sobreturnos</p>
+      </div>
+      <div class="head-right">
+        <div class="tabs" role="tablist">
+          <button id="tabAgenda" role="tab" aria-selected="true">Turnos</button>
+          <button id="tabPac" role="tab" aria-selected="false">Pacientes</button>
+        </div>
+      </div>
+    </header>
+    <div id="banner" class="banner" hidden></div>
+
+    <!-- TURNOS -->
+    <section id="viewAgenda" class="grid">
+      <div class="card">
+        <div class="daybar">
+          <span class="dayname" id="dayName"></span>
+          <button class="btn" id="prevDay" aria-label="Día anterior">‹</button>
+          <input type="date" id="dateInput" class="date">
+          <button class="btn" id="nextDay" aria-label="Día siguiente">›</button>
+          <button class="btn" id="todayBtn">Hoy</button>
+        </div>
+        <div class="summary"><span>Asignados <b id="cntBusy">0</b></span><span>Libres <b id="cntFree">18</b></span><span>Total <b>18</b></span></div>
+        <div class="slots" id="slots"></div>
+      </div>
+      <div class="card panel" id="panel"></div>
+    </section>
+
+    <!-- PACIENTES -->
+    <section id="viewPac" class="grid" hidden>
+      <div class="card stack">
+        <input type="search" id="pacSearch" placeholder="Buscar por apellido, nombre o DNI" autocomplete="off">
+        <div class="tablewrap">
+          <table>
+            <thead><tr><th>Apellido y nombre</th><th>DNI</th><th>Teléfono</th><th>Obra social</th></tr></thead>
+            <tbody id="pacBody"></tbody>
+          </table>
+        </div>
+        <p class="empty" id="pacEmpty" hidden>Todavía no hay pacientes cargados. Usá el formulario de alta para cargar el primero.</p>
+      </div>
+      <div class="card panel" id="pacPanel"></div>
+    </section>
+  </div>
 
   <script type="module" src="/src/main.js"></script>
 </body>
