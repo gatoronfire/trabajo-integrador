@@ -1,17 +1,35 @@
-// Utilidades de interfaz compartidas por las vistas.
+/**
+ * Utilidades de interfaz compartidas por las vistas:
+ * acceso al DOM, escape de texto, mensajes de error y el formulario de alta de paciente,
+ * que se usa en dos lugares (pestaña Pacientes y al asignar un turno).
+ */
 
 import { supabase } from "./supabase.js";
 import { Paciente } from "./models/Paciente.js";
 import { agregarPaciente } from "./store.js";
 
+/** Atajo para buscar un elemento por id. */
 export const $ = (id) => document.getElementById(id);
 
+/**
+ * Escapa los caracteres especiales de HTML.
+ * Todo dato que escribe el usuario pasa por acá antes de insertarse con innerHTML,
+ * para que un nombre como "<script>" se muestre como texto y no se ejecute.
+ */
 export const esc = (s) =>
   String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
 
+/**
+ * Convierte un texto a entero solo si tiene únicamente dígitos.
+ * Devuelve NaN si tiene letras, espacios o guiones; la validación del modelo lo rechaza.
+ */
 export const aEntero = (s) => (/^\d+$/.test(String(s).trim()) ? parseInt(s, 10) : NaN);
 
-/** Traduce un error a un mensaje para la secretaria. */
+/**
+ * Traduce un error a un mensaje entendible para la secretaria.
+ * - 42501 es el código de PostgreSQL para "permiso denegado" (políticas de seguridad).
+ * - Los Error propios (los que lanzan los modelos) ya traen un mensaje en español.
+ */
 export function textoDeError(e) {
   if (e && e.code === "42501") return "No tenés permiso para hacer esto. Revisá que hayas iniciado sesión.";
   if (e instanceof Error) return e.message;
@@ -19,13 +37,18 @@ export function textoDeError(e) {
   return "No se pudo guardar. Probá de nuevo.";
 }
 
+/** Muestra un aviso fijo arriba de la página (errores de carga). */
 export function mostrarBanner(texto) {
   const b = $("banner");
   b.textContent = texto;
   b.hidden = false;
 }
 
-/** Bloque con los datos de un paciente o de un turno (tienen los mismos campos). */
+/**
+ * HTML con los datos de un paciente.
+ * También sirve para un turno, porque el turno guarda los mismos campos del paciente.
+ * @param {{nombre:string, apellido:string, dni:number, telefono:number, tipoObraSocial:string|null}} p
+ */
 export function datosPacienteHTML(p) {
   return `<dl>
     <dt>Nombre</dt><dd>${esc(p.nombre)}</dd>
@@ -36,7 +59,13 @@ export function datosPacienteHTML(p) {
   </dl>`;
 }
 
-/** HTML del formulario de alta de paciente. `px` es un prefijo para los ids. */
+/**
+ * HTML del formulario de alta de paciente.
+ * @param {string} px Prefijo para los ids de los campos. Permite tener el formulario
+ *                    en dos vistas sin que se repitan ids ("p" en Pacientes, "a" en Turnos).
+ * @param {string} textoBoton Texto del botón de guardar.
+ * @param {boolean} conVolver Si agrega el botón "Volver a buscar" (se usa al asignar un turno).
+ */
 export function formularioPacienteHTML(px, textoBoton, conVolver = false) {
   return `<form id="${px}Form" class="stack" novalidate>
     <div class="row"><label>Nombre<input type="text" id="${px}Nom" autocomplete="off"></label><label>Apellido<input type="text" id="${px}Ape" autocomplete="off"></label></div>
@@ -49,11 +78,17 @@ export function formularioPacienteHTML(px, textoBoton, conVolver = false) {
   </form>`;
 }
 
-/** Conecta el formulario: valida, crea el paciente en Supabase y llama a onGuardado(paciente). */
+/**
+ * Conecta el formulario ya dibujado: al enviarlo lee los campos, crea el paciente
+ * en Supabase (Paciente.crear valida los datos) y llama a onGuardado(paciente).
+ * Si algo falla, muestra el error dentro del formulario.
+ * @param {string} px Mismo prefijo usado en formularioPacienteHTML.
+ * @param {{onGuardado: (p: Paciente) => any, onVolver?: () => void}} callbacks
+ */
 export function conectarFormularioPaciente(px, { onGuardado, onVolver }) {
   if (onVolver) $(px + "Back").onclick = onVolver;
   $(px + "Form").onsubmit = async (e) => {
-    e.preventDefault();
+    e.preventDefault(); // evita que el navegador recargue la página al enviar
     const obraSocial = $(px + "Tipo").value.trim();
     const datos = {
       nombre: $(px + "Nom").value.trim(),
@@ -62,10 +97,11 @@ export function conectarFormularioPaciente(px, { onGuardado, onVolver }) {
       telefono: aEntero($(px + "Tel").value),
       tipoObraSocial: obraSocial || null, // vacío = sin obra social
     };
+    // Se deshabilita el botón para que un doble clic no cree el paciente dos veces.
     $(px + "Ok").disabled = true;
     try {
       const p = await Paciente.crear(supabase, datos);
-      agregarPaciente(p);
+      agregarPaciente(p); // lo suma a la lista en memoria para que aparezca en las vistas
       await onGuardado(p);
     } catch (err) {
       errorEnFormulario(px, textoDeError(err));
@@ -74,6 +110,7 @@ export function conectarFormularioPaciente(px, { onGuardado, onVolver }) {
   };
 }
 
+/** Muestra un mensaje de error dentro del formulario, arriba de los botones. */
 function errorEnFormulario(px, texto) {
   const f = $(px + "Form");
   let el = f.querySelector(".msg");

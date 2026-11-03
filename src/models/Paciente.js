@@ -1,22 +1,42 @@
-// Clase Paciente
-// Datos: nombre, apellido, dni (int, identifica al paciente), telefono (int),
-//        tipoObraSocial (string o null si no tiene obra social).
+/**
+ * Clase Paciente.
+ *
+ * Datos:
+ *   - nombre, apellido (string)
+ *   - dni (int): identifica al paciente, no se puede repetir
+ *   - telefono (int)
+ *   - tipoObraSocial (string, o null si no tiene obra social)
+ *
+ * La clase también se encarga de guardar y leer pacientes de la tabla
+ * `pacientes` de Supabase. En la base las columnas usan snake_case
+ * (tipo_obra_social) y en JavaScript camelCase (tipoObraSocial):
+ * desdeFila() y aFila() hacen esa conversión.
+ */
 
 export class Paciente {
+  /**
+   * @param {{nombre:string, apellido:string, dni:number, telefono:number, tipoObraSocial?:string|null}} datos
+   */
   constructor({ nombre, apellido, dni, telefono, tipoObraSocial }) {
     this.nombre = nombre;
     this.apellido = apellido;
     this.dni = dni;
     this.telefono = telefono;
+    // ?? convierte undefined en null: "sin obra social" siempre se guarda como null.
     this.tipoObraSocial = tipoObraSocial ?? null;
+    // Congela el objeto: sus datos no se pueden cambiar después de crearlo.
     Object.freeze(this);
   }
 
+  /** Nombre para mostrar en listas: "Apellido, Nombre". */
   get nombreCompleto() {
     return this.apellido + ", " + this.nombre;
   }
 
-  /** Convierte una fila de la tabla `pacientes` en un Paciente. */
+  /**
+   * Convierte una fila de la tabla `pacientes` en un Paciente.
+   * Number() se usa porque las columnas bigint pueden llegar como texto.
+   */
   static desdeFila(f) {
     return new Paciente({
       nombre: f.nombre,
@@ -27,6 +47,7 @@ export class Paciente {
     });
   }
 
+  /** Convierte el Paciente al formato de una fila de la tabla `pacientes`. */
   aFila() {
     return {
       nombre: this.nombre,
@@ -37,7 +58,12 @@ export class Paciente {
     };
   }
 
-  /** Devuelve un mensaje de error, o null si los datos son válidos. */
+  /**
+   * Valida los datos de un paciente.
+   * Los mismos límites están como `check` en la base (supabase/01_pacientes.sql);
+   * se validan acá también para mostrar un mensaje claro sin ir a la base.
+   * @returns {string|null} Mensaje de error, o null si los datos son válidos.
+   */
   static validar({ nombre, apellido, dni, telefono }) {
     if (!nombre || !apellido) return "Completá nombre y apellido.";
     if (!Number.isInteger(dni) || dni < 1000000 || dni > 999999999)
@@ -47,20 +73,30 @@ export class Paciente {
     return null;
   }
 
-  /** Da de alta un paciente. El DNI no se puede repetir. */
+  /**
+   * Da de alta un paciente en la base.
+   * @param {import("@supabase/supabase-js").SupabaseClient} supabase
+   * @param {object} datos Mismos campos que el constructor.
+   * @returns {Promise<Paciente>}
+   * @throws {Error} Si los datos no son válidos o el DNI ya existe.
+   */
   static async crear(supabase, datos) {
     const error = Paciente.validar(datos);
     if (error) throw new Error(error);
     const paciente = new Paciente(datos);
     const { error: e } = await supabase.from("pacientes").insert(paciente.aFila());
     if (e) {
+      // 23505 es el código de PostgreSQL para "valor duplicado": el DNI es la clave primaria.
       if (e.code === "23505") throw new Error("Ya existe un paciente con ese DNI.");
       throw e;
     }
     return paciente;
   }
 
-  /** Lista todos los pacientes ordenados por apellido y nombre. */
+  /**
+   * Trae todos los pacientes ordenados por apellido y nombre.
+   * @returns {Promise<Paciente[]>}
+   */
   static async listar(supabase) {
     const { data, error } = await supabase
       .from("pacientes")
